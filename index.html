@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGMTECH Equipment Label</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #fff;
+            padding: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .label-card {
+            max-width: 900px;
+            margin: 0 auto;
+            border: 3px solid #222;
+            padding: 24px;
+        }
+        .header-wrap {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .logo-box {
+            background: #000;
+            color: #fff;
+            font-size: 80px;
+            font-weight: bold;
+            line-height: 1;
+            padding: 8px 14px;
+        }
+        .tech-text {
+            font-size: 80px;
+            font-weight: bold;
+        }
+        .ce-text {
+            font-size: 90px;
+            font-weight: bold;
+            margin-left: auto;
+        }
+        .tm-line {
+            font-size: 28px;
+            margin-bottom: 30px;
+            padding-left: 10px;
+        }
+        .grid-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            font-size: 42px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        .bottom-line {
+            font-size: 42px;
+            line-height: 1.45;
+            margin-top:20px;
+        }
+        .web-link{
+            font-size: 44px;
+            text-align:center;
+            margin-top:16px;
+        }
+        .web-link a{
+            color:#000;
+            text-decoration:none;
+        }
+        /* 管理面板，默认隐藏 */
+        .sn-input-area{
+            max-width:900px;
+            margin:20px auto 0;
+            padding:16px;
+            border:1px solid #ccc;
+            border-radius:8px;
+            display: none;
+        }
+        .sn-input-area input{
+            padding:8px;
+            font-size:20px;
+            width:70%;
+        }
+        .sn-input-area button{
+            padding:8px 16px;
+            font-size:20px;
+            cursor:pointer;
+            margin:4px;
+        }
+        .tip-text{
+            color:#239b23;
+            margin-top:8px;
+            display:none;
+        }
+        @media(max-width:768px){
+            .header-wrap{flex-wrap:wrap;}
+            .logo-box,.tech-text,.ce-text{font-size:48px;}
+            .tm-line{font-size:20px;}
+            .grid-row{font-size:26px;grid-template-columns:1fr;}
+            .bottom-line{font-size:26px;}
+            .web-link{font-size:28px;}
+            .sn-input-area input{width:60%;}
+        }
+    </style>
+</head>
+<body>
+    <div class="label-card">
+        <div class="header-wrap">
+            <div class="logo-box">BGM</div>
+            <div class="tech-text">TECH</div>
+            <div class="ce-text">CE</div>
+        </div>
+        <div class="tm-line">TRADE MARK`S [H/BD/01/257083]</div>
+
+        <div class="grid-row">
+            <div>BRAND:BGMTECH</div>
+            <div>DATE:26/10/25</div>
+        </div>
+        <div class="grid-row">
+            <div>MODEL:A1425</div>
+            <div>SERIAL NO.:<span id="sn-text"></span></div>
+        </div>
+        <div class="grid-row">
+            <div>POWER:7.5KW</div>
+            <div>ORIGINAL:CHINA</div>
+        </div>
+
+        <div class="bottom-line">
+            IMPORTER:BGM TECH INTERNATIONAL CNC COMPANY LTD<br>
+            Tel:+8801711063246,+8801851-552800
+        </div>
+        <div class="web-link">
+            <a href="https://www.bgmtechcnc.com" target="_blank">http://www.bgmtechcnc.com</a>
+        </div>
+    </div>
+
+    <!-- 管理面板：仅 ?admin=1 时显示 -->
+    <div class="sn-input-area" id="admin-panel">
+        <input type="text" id="sn-input" placeholder="输入序列号">
+        <button onclick="setSN()">填入序列号</button>
+        <button onclick="copyLink()">一键复制链接</button>
+        <div style="margin-top:10px;word-break:break-all;">
+            NFC写入链接模板：<br>
+            <span id="link-preview"></span>
+        </div>
+        <div class="tip-text" id="copy-tip">✅ 链接已复制！</div>
+    </div>
+
+<script>
+function getUrlParam(name) {
+    const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+    const r = window.location.search.substr(1).match(reg);
+    if (r != null) return decodeURIComponent(r[2]);
+    return "";
+}
+function setSN(){
+    const val = document.getElementById('sn-input').value.trim();
+    document.getElementById('sn-text').innerText = val;
+    const baseUrl = window.location.origin + window.location.pathname;
+    document.getElementById('link-preview').innerText = baseUrl + "?sn=" + val;
+    document.getElementById('copy-tip').style.display = "none";
+}
+async function copyLink(){
+    const link = document.getElementById('link-preview').innerText;
+    if(!link) return;
+    try{
+        await navigator.clipboard.writeText(link);
+        document.getElementById('copy-tip').style.display = "block";
+        setTimeout(()=>{
+            document.getElementById('copy-tip').style.display = "none";
+        },1500);
+    }catch(err){
+        alert("复制失败，请手动复制：" + link);
+    }
+}
+window.onload = function(){
+    const sn = getUrlParam('sn');
+    const admin = getUrlParam('admin');
+    if(sn){
+        document.getElementById('sn-text').innerText = sn;
+        document.getElementById('sn-input').value = sn;
+    }
+    // 带 admin=1 才展示管理面板
+    if(admin === "1"){
+        document.getElementById('admin-panel').style.display = "block";
+    }
+    setSN();
+}
+</script>
+</body>
+</html>
